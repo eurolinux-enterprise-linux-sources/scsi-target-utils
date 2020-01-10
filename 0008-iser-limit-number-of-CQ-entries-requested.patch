@@ -1,0 +1,33 @@
+From 8ac0fd468491bd1257e2a3c1aca970f9ecaa5adc Mon Sep 17 00:00:00 2001
+From: Andy Grover <agrover@redhat.com>
+Date: Sat, 10 Aug 2013 15:41:32 -0700
+Subject: [PATCH 08/17] iser-limit-number-of-CQ-entries-requested
+
+---
+ usr/iscsi/iser.c |    3 ++-
+ 1 files changed, 2 insertions(+), 1 deletions(-)
+
+diff --git a/usr/iscsi/iser.c b/usr/iscsi/iser.c
+index 7a43fd4..b3889a7 100644
+--- a/usr/iscsi/iser.c
++++ b/usr/iscsi/iser.c
+@@ -84,6 +84,7 @@ char *iser_portal_addr;
+ 
+ #define DEFAULT_POOL_SIZE_MB    1024
+ #define ISER_MAX_QUEUE_CMD      128     /* iSCSI cmd window size */
++#define MAX_CQ_ENTRIES          (128 * 1024)
+ 
+ #define MASK_BY_BIT(b)  	((1UL << b) - 1)
+ #define ALIGN_TO_BIT(x, b)      ((((unsigned long)x) + MASK_BY_BIT(b)) & \
+@@ -3264,7 +3265,7 @@ static int iser_device_init(struct iser_device *dev)
+ 		eprintf("ibv_query_device failed, %m\n");
+ 		goto out;
+ 	}
+-	cqe_num = dev->device_attr.max_cqe;
++	cqe_num = min(dev->device_attr.max_cqe, MAX_CQ_ENTRIES);
+ 	dprintf("max %d CQEs\n", cqe_num);
+ 
+ 	err = -1;
+-- 
+1.7.1
+

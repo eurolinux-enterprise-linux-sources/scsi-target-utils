@@ -31,7 +31,7 @@ start()
 	[ -x /usr/sbin/$exec ] || exit 5
 	echo -n $"Starting $prog: "
 	# Note /dev/null redirection to silence rdma not found messages
-	daemon $exec >/dev/null 2>&1
+	daemon $exec ${TGTD_OPTIONS} >/dev/null 2>&1
 	retval=$?
 	if [ $retval -ne 0 ] ; then
 		failure

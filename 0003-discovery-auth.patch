@@ -1,3 +1,14 @@
+From 3bfa800e546f1afdabc3e79f47810a0d54b50fa2 Mon Sep 17 00:00:00 2001
+From: Andy Grover <agrover@redhat.com>
+Date: Sat, 10 Aug 2013 15:40:27 -0700
+Subject: [PATCH 03/17] discovery-auth
+
+---
+ doc/targets.conf.5.xml |   18 ++++++++++++++++++
+ doc/tgtadm.8.xml       |    5 +----
+ scripts/tgt-admin      |   14 ++++++++++++++
+ 3 files changed, 33 insertions(+), 4 deletions(-)
+
 diff --git a/doc/targets.conf.5.xml b/doc/targets.conf.5.xml
 index f8abe20..f754df3 100644
 --- a/doc/targets.conf.5.xml
@@ -71,3 +82,6 @@ index 030f1ae..cd34f95 100755
  	}
  	foreach my $k (sort keys %conf) {
  		if ($k eq "iSNS") {
+-- 
+1.7.1
+

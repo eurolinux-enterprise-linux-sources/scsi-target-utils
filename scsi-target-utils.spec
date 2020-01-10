@@ -1,6 +1,6 @@
 Name:           scsi-target-utils
 Version:        1.0.24
-Release:        3%{?dist}
+Release:        10%{?dist}
 Summary:        The SCSI target daemon and utility programs
 
 Group:          System Environment/Daemons
@@ -11,9 +11,23 @@ Source1:        tgtd.init
 Source2:        sysconfig.tgtd
 Source3:        targets.conf
 # Add Red Hat specific info to docs.
-Patch0:         scsi-target-utils-redhatify-docs.patch
-Patch1:         scsi-target-utils-remove-xsltproc-check.patch
-Patch2:         scsi-target-utils-discovery-auth.patch
+Patch0:         0001-redhatify-docs.patch
+Patch1:         0002-remove-xsltproc.patch
+Patch2:         0003-discovery-auth.patch
+Patch3:         0004-iser-Fix-bidirectional-chap.patch
+Patch4:         0005-bs_aio-use-64bit-to-read-eventfd-counter.patch
+Patch5:         0006-iser-added-huge-pages-support.patch
+Patch6:         0007-iser-added-parameter-for-pool-size.patch
+Patch7:         0008-iser-limit-number-of-CQ-entries-requested.patch
+Patch8:         0009-iser-add-CQ-vector-param.patch
+Patch9:         0010-Rework-param_set_val-and-friends.patch
+Patch10:        0011-return-Reject-in-iscsi-login-text-failure.patch
+Patch11:        0012-Fix-leak-of-task-data.patch
+Patch12:        0013-Fix-isns-to-handle-multiple-portals.patch
+Patch13:        0014-iser-Don-t-wait-until-iser_ib_init-to-init-list_head.patch
+Patch14:        0015-iser-cleaning-iser-ib-objects-on-lld-exit.patch
+Patch15:        0016-iser-Don-t-release-IB-resources-if-were-not-allocate.patch
+Patch16:        0017-Fix-possible-segfault-on-logicalunit-update.patch
 
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
@@ -34,6 +48,20 @@ Currently, software iSCSI targets are supported.
 %patch0 -p1
 %patch1 -p1
 %patch2 -p1
+%patch3 -p1
+%patch4 -p1
+%patch5 -p1
+%patch6 -p1
+%patch7 -p1
+%patch8 -p1
+%patch9 -p1
+%patch10 -p1
+%patch11 -p1
+%patch12 -p1
+%patch13 -p1
+%patch14 -p1
+%patch15 -p1
+%patch16 -p1
 
 
 %build
@@ -101,6 +129,40 @@ fi
 
 
 %changelog
+* Tue Sep 3 2013 Andy Grover <agrover@redhat.com> - 1.0.24-10
+- Update sysconfig.tgtd with commented-out TGTD_OPTIONS
+
+* Tue Sep 3 2013 Andy Grover <agrover@redhat.com> - 1.0.24-9
+- Redo patches to use 'git format-patch' naming
+- Add more backported patches:
+  * 0014-iser-Don-t-wait-until-iser_ib_init-to-init-list_head.patch
+  * 0015-iser-cleaning-iser-ib-objects-on-lld-exit.patch
+  * 0016-iser-Don-t-release-IB-resources-if-were-not-allocate.patch
+  * 0017-Fix-possible-segfault-on-logicalunit-update.patch
+  
+* Thu Aug 29 2013 Andy Grover <agrover@redhat.com> - 1.0.24-8
+- Add patch isns-regression.patch for #865739
+
+* Mon Aug 19 2013 Andy Grover <agrover@redhat.com> - 1.0.24-7
+- Fix logic error in fix-task-data-leak.patch
+
+* Sun Aug 11 2013 Andy Grover <agrover@redhat.com> - 1.0.24-6
+- Add patch fix-task-data-leak.patch for #813636
+
+* Sat Aug 10 2013 Andy Grover <agrover@redhat.com> - 1.0.24-5
+- Fix #922270 by adding TGTD_OPTIONS to daemon exec line in tgt.init
+
+* Fri Aug 2 2013 Andy Grover <agrover@redhat.com> - 1.0.24-4
+- Add patches
+  * 0001-iser-Fix-bidirectional-chap.patch
+  * 0002-bs_aio-use-64bit-to-read-eventfd-counter.patch
+  * 0003-iser-added-huge-pages-support.patch
+  * 0004-iser-added-parameter-for-pool-size.patch
+  * 0005-iser-limit-number-of-CQ-entries-requested.patch
+  * 0006-iser-add-CQ-vector-param.patch
+  * 0007-Rework-param_set_val-and-friends.patch
+  * 0008-return-Reject-in-iscsi-login-text-failure.patch
+
 * Mon May 6 2013 Andy Grover <agrover@redhat.com> - 1.0.24-3
 - Add libaio-devel as a BuildReq and libaio as a Req for #910638
 

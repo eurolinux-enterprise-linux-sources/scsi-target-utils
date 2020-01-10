@@ -1,17 +1,14 @@
-commit ad75a57863efcbf264ef44c5643e64c5bad84cb9
-Author: Andy Grover <agrover@redhat.com>
-Date:   Wed Nov 2 22:15:32 2011 -0700
+From ab8d76226eb190c4907cbecbd42081a3e943e21c Mon Sep 17 00:00:00 2001
+From: Andy Grover <agrover@redhat.com>
+Date: Sat, 10 Aug 2013 15:40:11 -0700
+Subject: [PATCH 02/17] remove-xsltproc
 
-    remove check for xsltproc
-    
-    It should always be there, since we added libxslt as a BuildRequires.
-    
-    Use local stylesheet.
-    
-    Signed-off-by: Andy Grover <agrover@redhat.com>
+---
+ doc/Makefile |   23 +++++++++++++----------
+ 1 files changed, 13 insertions(+), 10 deletions(-)
 
 diff --git a/doc/Makefile b/doc/Makefile
-index 4370fb2..54d5a09 100644
+index 4370fb2..5f6e427 100644
 --- a/doc/Makefile
 +++ b/doc/Makefile
 @@ -32,35 +32,38 @@ clean:
@@ -63,3 +60,6 @@ index 4370fb2..54d5a09 100644
  
  manpages/tgt-setup-lun.8: tgt-setup-lun.8.xml
  	-test -z "$(XSLTPROC)" || $(XSLTPROC) -o $@ http://docbook.sourceforge.net/release/xsl/current/manpages/docbook.xsl $<
+-- 
+1.7.1
+

@@ -1,2 +1,5 @@
 # configuration file
 #TGTD_CONFIG=/etc/tgt/targets.conf
+#
+# options to pass to tgtd
+#TGTD_OPTIONS=""

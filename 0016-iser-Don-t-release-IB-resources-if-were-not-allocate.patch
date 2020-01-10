@@ -1,0 +1,43 @@
+From 784e09d642b9c62e22e5e4055b3ec052ec7afbaa Mon Sep 17 00:00:00 2001
+From: Roi Dayan <roid@mellanox.com>
+Date: Sun, 25 Aug 2013 14:20:39 +0300
+Subject: [PATCH 16/17] iser: Don't release IB resources if were not allocated
+
+The lld exit function is being called even if the lld was not
+initialized.  Added a check if IB resources were allocated before
+trying to release.
+
+Signed-off-by: Roi Dayan <roid@mellanox.com>
+Signed-off-by: FUJITA Tomonori <fujita.tomonori@lab.ntt.co.jp>
+---
+ usr/iscsi/iser.c |   12 +++++++-----
+ 1 files changed, 7 insertions(+), 5 deletions(-)
+
+diff --git a/usr/iscsi/iser.c b/usr/iscsi/iser.c
+index faceafa..c23d70c 100644
+--- a/usr/iscsi/iser.c
++++ b/usr/iscsi/iser.c
+@@ -3431,13 +3431,15 @@ static void iser_ib_release(void)
+ 		free(dev);
+ 	}
+ 
+-	tgt_event_del(cma_listen_id->channel->fd);
++	if (cma_listen_id) {
++		tgt_event_del(cma_listen_id->channel->fd);
+ 
+-	err = rdma_destroy_id(cma_listen_id);
+-	if (err)
+-		eprintf("rdma_destroy_id failed: (errno=%d %m)\n", errno);
++		err = rdma_destroy_id(cma_listen_id);
++		if (err)
++			eprintf("rdma_destroy_id failed: (errno=%d %m)\n", errno);
+ 
+-	rdma_destroy_event_channel(rdma_evt_channel);
++		rdma_destroy_event_channel(rdma_evt_channel);
++	}
+ }
+ 
+ static int iser_send_nop = 1;
+-- 
+1.7.1
+

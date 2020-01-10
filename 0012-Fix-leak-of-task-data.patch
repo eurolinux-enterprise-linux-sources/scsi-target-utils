@@ -1,0 +1,43 @@
+From 4e0e8ca926c2f0739f67db7ed17cfea604814196 Mon Sep 17 00:00:00 2001
+From: Andy Grover <agrover@redhat.com>
+Date: Mon, 19 Aug 2013 12:43:07 -0700
+Subject: [PATCH 12/17] Fix leak of task->data
+
+See https://bugzilla.redhat.com/show_bug.cgi?id=813636
+
+If a connection is terminated while tasks are not yet fully received,
+task->data will have been allocated but not referred to by a cmd in-
+or out-buffer, which happens in iscsi_target_cmd_queue after the entire
+command is received. When freeing tasks for a closed connection, ensure
+task->data is freed if it isn't already freed by the pointer having been
+copied to scmd in or out buffer.
+
+It might be nicer set task->data to NULL when its reference is copied,
+and then we could unconditionally call free() on it in iscsi_free_task,
+but task->data is referred to in many other places in iscsid.c. Maybe
+those places should refer to the in/out buffers instead?
+
+Reported-by: Tomoaki Nishimura <t-nishimura@hf.jp.nec.com>
+Signed-off-by: Andy Grover <agrover@redhat.com>
+---
+ usr/iscsi/iscsid.c |    4 ++++
+ 1 files changed, 4 insertions(+), 0 deletions(-)
+
+diff --git a/usr/iscsi/iscsid.c b/usr/iscsi/iscsid.c
+index 144d2bd..45551df 100644
+--- a/usr/iscsi/iscsid.c
++++ b/usr/iscsi/iscsid.c
+@@ -1192,6 +1192,10 @@ void iscsi_free_task(struct iscsi_task *task)
+ 	conn->tp->free_data_buf(conn, scsi_get_in_buffer(&task->scmd));
+ 	conn->tp->free_data_buf(conn, scsi_get_out_buffer(&task->scmd));
+ 
++	if ((task->data != scsi_get_in_buffer(&task->scmd)) &&
++	    (task->data != scsi_get_out_buffer(&task->scmd)))
++		conn->tp->free_data_buf(conn, task->data);
++
+ 	conn->tp->free_task(task);
+ 	conn_put(conn);
+ }
+-- 
+1.7.1
+

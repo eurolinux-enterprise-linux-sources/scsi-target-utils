@@ -1,0 +1,189 @@
+From aa906a625d587c8d3d6d732a6c4f9367c14ac30f Mon Sep 17 00:00:00 2001
+From: Andy Grover <agrover@redhat.com>
+Date: Sat, 10 Aug 2013 15:41:47 -0700
+Subject: [PATCH 10/17] Rework-param_set_val-and-friends
+
+---
+ usr/iscsi/iscsid.c    |    6 +++---
+ usr/iscsi/iser_text.c |    3 +--
+ usr/iscsi/param.c     |   36 ++++++++++--------------------------
+ usr/iscsi/param.h     |    4 ++--
+ 4 files changed, 16 insertions(+), 33 deletions(-)
+
+diff --git a/usr/iscsi/iscsid.c b/usr/iscsi/iscsid.c
+index 3fbd9f6..4ed3711 100644
+--- a/usr/iscsi/iscsid.c
++++ b/usr/iscsi/iscsid.c
+@@ -345,9 +345,9 @@ static void text_scan_login(struct iscsi_connection *conn)
+ 			    conn->session_type == SESSION_DISCOVERY)
+ 				conn->session_param[idx].val = val;
+ 			else
+-				err = param_set_val(session_keys,
+-						    conn->session_param,
+-						    idx, &val);
++				param_set_val(session_keys,
++					      conn->session_param,
++					      idx, &val);
+ 
+ 			switch (conn->session_param[idx].state) {
+ 			case KEY_STATE_START:
+diff --git a/usr/iscsi/iser_text.c b/usr/iscsi/iser_text.c
+index 9595d09..6a1e498 100644
+--- a/usr/iscsi/iser_text.c
++++ b/usr/iscsi/iser_text.c
+@@ -284,7 +284,7 @@ static void iser_login_oper_scan(struct iscsi_connection *iscsi_conn,
+ 			}
+ 
+ 			err = param_check_val(session_keys, idx, &val);
+-			err = param_set_val(session_keys, iscsi_conn->session_param, idx, &val);
++			param_set_val(session_keys, iscsi_conn->session_param, idx, &val);
+ 
+ 			switch (iscsi_conn->session_param[idx].state) {
+ 			case KEY_STATE_START:
+@@ -856,4 +856,3 @@ int iser_text_exec(struct iscsi_connection *iscsi_conn,
+ 
+ 	return 0;
+ }
+-
+diff --git a/usr/iscsi/param.c b/usr/iscsi/param.c
+index 0c3e3f7..a6ca6da 100644
+--- a/usr/iscsi/param.c
++++ b/usr/iscsi/param.c
+@@ -90,20 +90,16 @@ static int bool_str_to_val(char *str, unsigned int *val)
+ 	return err;
+ }
+ 
+-static int or_set_val(struct param *param, int idx, unsigned int *val)
++static void or_set_val(struct param *param, int idx, unsigned int *val)
+ {
+ 	*val |= param[idx].val;
+ 	param[idx].val = *val;
+-
+-	return 0;
+ }
+ 
+-static int and_set_val(struct param *param, int idx, unsigned int *val)
++static void and_set_val(struct param *param, int idx, unsigned int *val)
+ {
+ 	*val &= param[idx].val;
+ 	param[idx].val = *val;
+-
+-	return 0;
+ }
+ 
+ static int minimum_check_val(struct iscsi_key *key, unsigned int *val)
+@@ -142,34 +138,28 @@ static int maximum_check_val(struct iscsi_key *key, unsigned int *val)
+ 	return err;
+ }
+ 
+-static int minimum_set_val(struct param *param, int idx, unsigned int *val)
++static void minimum_set_val(struct param *param, int idx, unsigned int *val)
+ {
+ 	if (*val > param[idx].val)
+ 		*val = param[idx].val;
+ 	else
+ 		param[idx].val = *val;
+-
+-	return 0;
+ }
+ 
+-static int min_or_zero_set_val(struct param *param, int idx, unsigned int *val)
++static void min_or_zero_set_val(struct param *param, int idx, unsigned int *val)
+ {
+ 	if (*val > param[idx].val || *val == 0)
+ 		*val = param[idx].val;
+ 	else
+ 		param[idx].val = *val;
+-
+-	return 0;
+ }
+ 
+-static int maximum_set_val(struct param *param, int idx, unsigned int *val)
++static void maximum_set_val(struct param *param, int idx, unsigned int *val)
+ {
+ 	if (param[idx].val > *val)
+ 		*val = param[idx].val;
+ 	else
+ 		param[idx].val = *val;
+-
+-	return 0;
+ }
+ 
+ static int digest_val_to_str(unsigned int val, char *str)
+@@ -210,7 +200,7 @@ static int digest_str_to_val(char *str, unsigned int *val)
+ 	return err;
+ }
+ 
+-static int digest_set_val(struct param *param, int idx, unsigned int *val)
++static void digest_set_val(struct param *param, int idx, unsigned int *val)
+ {
+ 	if (*val & DIGEST_CRC32C && param[idx].val & DIGEST_CRC32C)
+ 		*val = DIGEST_CRC32C;
+@@ -218,8 +208,6 @@ static int digest_set_val(struct param *param, int idx, unsigned int *val)
+ 		*val = DIGEST_NONE;
+ 
+ 	param[idx].val = *val;
+-
+-	return 0;
+ }
+ 
+ static int marker_val_to_str(unsigned int val, char *str)
+@@ -232,7 +220,7 @@ static int marker_val_to_str(unsigned int val, char *str)
+ 	return 0;
+ }
+ 
+-static int marker_set_val(struct param *param, int idx, unsigned int *val)
++static void marker_set_val(struct param *param, int idx, unsigned int *val)
+ {
+ 	if ((idx == ISCSI_PARAM_OFMARKER_EN &&
+ 	     param[ISCSI_PARAM_OFMARKER_EN].state == KEY_STATE_DONE) ||
+@@ -243,8 +231,6 @@ static int marker_set_val(struct param *param, int idx, unsigned int *val)
+ 		*val = 1;
+ 
+ 	param[idx].val = *val;
+-
+-	return 0;
+ }
+ 
+ int param_val_to_str(struct iscsi_key *keys, int idx, unsigned int val, char *str)
+@@ -271,13 +257,11 @@ int param_check_val(struct iscsi_key *keys, int idx, unsigned int *val)
+ 		return 0;
+ }
+ 
+-int param_set_val(struct iscsi_key *keys, struct param *param,
+-		  int idx, unsigned int *val2)
++void param_set_val(struct iscsi_key *keys, struct param *param,
++		   int idx, unsigned int *val2)
+ {
+ 	if (keys[idx].ops->set_val)
+-		return keys[idx].ops->set_val(param, idx, val2);
+-	else
+-		return 0;
++		keys[idx].ops->set_val(param, idx, val2);
+ }
+ 
+ static struct iscsi_key_ops minimum_ops = {
+diff --git a/usr/iscsi/param.h b/usr/iscsi/param.h
+index b5dd567..19df3f2 100644
+--- a/usr/iscsi/param.h
++++ b/usr/iscsi/param.h
+@@ -34,7 +34,7 @@ struct iscsi_key_ops {
+ 	int (*val_to_str)(unsigned int, char *);
+ 	int (*str_to_val)(char *, unsigned int *);
+ 	int (*check_val)(struct iscsi_key *, unsigned int *);
+-	int (*set_val)(struct param *, int, unsigned int *);
++	void (*set_val)(struct param *, int, unsigned int *);
+ };
+ 
+ struct iscsi_key {
+@@ -52,6 +52,6 @@ extern int param_index_by_name(char *, struct iscsi_key *);
+ extern int param_val_to_str(struct iscsi_key *, int, unsigned int, char *);
+ extern int param_str_to_val(struct iscsi_key *, int, char *, unsigned int *);
+ extern int param_check_val(struct iscsi_key *, int, unsigned int *);
+-extern int param_set_val(struct iscsi_key *, struct param *, int, unsigned int *);
++extern void param_set_val(struct iscsi_key *, struct param *, int, unsigned int *);
+ 
+ #endif
+-- 
+1.7.1
+

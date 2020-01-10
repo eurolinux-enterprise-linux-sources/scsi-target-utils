@@ -1,0 +1,53 @@
+From c67726f0a64f10a80c3a4730c8aa04579de661ac Mon Sep 17 00:00:00 2001
+From: Andy Grover <agrover@redhat.com>
+Date: Sat, 10 Aug 2013 15:41:03 -0700
+Subject: [PATCH 05/17] bs_aio-use-64bit-to-read-eventfd-counter
+
+---
+ usr/bs_aio.c |   12 ++++++++----
+ 1 files changed, 8 insertions(+), 4 deletions(-)
+
+diff --git a/usr/bs_aio.c b/usr/bs_aio.c
+index 8d07df1..a114a70 100644
+--- a/usr/bs_aio.c
++++ b/usr/bs_aio.c
+@@ -260,10 +260,13 @@ static void bs_aio_get_completions(int fd, int events, void *data)
+ {
+ 	struct bs_aio_info *info = data;
+ 	int i, ret;
+-	uint64_t ncomplete, nevents;
++	/* read from eventfd returns 8-byte int, fails with the error EINVAL
++	   if the size of the supplied buffer is less than 8 bytes */
++	uint64_t evts_complete;
++	unsigned int ncomplete, nevents;
+ 
+ retry_read:
+-	ret = read(info->evt_fd, &ncomplete, sizeof(ncomplete));
++	ret = read(info->evt_fd, &evts_complete, sizeof(evts_complete));
+ 	if (unlikely(ret < 0)) {
+ 		eprintf("failed to read AIO completions, %m\n");
+ 		if (errno == EAGAIN || errno == EINTR)
+@@ -271,9 +274,10 @@ retry_read:
+ 
+ 		return;
+ 	}
++	ncomplete = (unsigned int) evts_complete;
+ 
+ 	while (ncomplete) {
+-		nevents = min_t(long, ncomplete, ARRAY_SIZE(info->io_evts));
++		nevents = min_t(unsigned int, ncomplete, ARRAY_SIZE(info->io_evts));
+ retry_getevts:
+ 		ret = io_getevents(info->ctx, 1, nevents, info->io_evts, NULL);
+ 		if (likely(ret > 0)) {
+@@ -285,7 +289,7 @@ retry_getevts:
+ 			eprintf("io_getevents failed, err:%d\n", -ret);
+ 			return;
+ 		}
+-		dprintf("got %ld ioevents out of %ld, pending %d\n",
++		dprintf("got %d ioevents out of %d, pending %d\n",
+ 			nevents, ncomplete, info->npending);
+ 
+ 		for (i = 0; i < nevents; i++)
+-- 
+1.7.1
+
