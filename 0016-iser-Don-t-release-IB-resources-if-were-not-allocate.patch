@@ -38,6 +38,3 @@ index faceafa..c23d70c 100644
  }
  
  static int iser_send_nop = 1;
--- 
-1.9.0
-

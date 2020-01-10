@@ -109,6 +109,3 @@ index 42802be..faceafa 100644
  }
  
  static int iser_target_create(struct target *t)
--- 
-1.9.0
-

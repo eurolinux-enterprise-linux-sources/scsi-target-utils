@@ -38,6 +38,3 @@ index 144d2bd..45551df 100644
  	conn->tp->free_task(task);
  	conn_put(conn);
  }
--- 
-1.9.0
-

@@ -47,6 +47,3 @@ index 6a1e498..12ebc42 100644
  			param_set_val(session_keys, iscsi_conn->session_param, idx, &val);
  
  			switch (iscsi_conn->session_param[idx].state) {
--- 
-1.9.0
-

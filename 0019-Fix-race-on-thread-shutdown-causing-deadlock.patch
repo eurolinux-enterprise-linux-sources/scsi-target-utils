@@ -190,6 +190,3 @@ index 50dd1c3..b282b17 100644
  	request_func_t *request_fn;
  };
  
--- 
-1.9.0
-

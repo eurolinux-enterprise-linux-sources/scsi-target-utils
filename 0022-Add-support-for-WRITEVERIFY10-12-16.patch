@@ -1,0 +1,130 @@
+From 2d86a25773cd2b5c7806b3d40d379f5aea29c59c Mon Sep 17 00:00:00 2001
+From: Ronnie Sahlberg <ronniesahlberg@gmail.com>
+Date: Sat, 14 Jul 2012 13:32:04 +0900
+Subject: [PATCH] Add support for WRITEVERIFY10/12/16
+
+Signed-off-by: Ronnie Sahlberg <ronniesahlberg@gmail.com>
+Signed-off-by: FUJITA Tomonori <fujita.tomonori@lab.ntt.co.jp>
+---
+ usr/bs_rdwr.c |  9 ++++++++-
+ usr/sbc.c     | 18 ++++++++++++++----
+ usr/scsi.c    |  4 +++-
+ 3 files changed, 25 insertions(+), 6 deletions(-)
+
+diff --git a/usr/bs_rdwr.c b/usr/bs_rdwr.c
+index dd7da21..5c8e7cf 100644
+--- a/usr/bs_rdwr.c
++++ b/usr/bs_rdwr.c
+@@ -63,6 +63,7 @@ static void bs_rdwr_request(struct scsi_cmd *cmd)
+ 	uint8_t key;
+ 	uint16_t asc;
+ 	char *tmpbuf;
++	int do_verify = 0;
+ 
+ 	ret = length = 0;
+ 	key = asc = 0;
+@@ -81,6 +82,10 @@ static void bs_rdwr_request(struct scsi_cmd *cmd)
+ 		} else
+ 			bs_sync_sync_range(cmd, length, &result, &key, &asc);
+ 		break;
++	case WRITE_VERIFY:
++	case WRITE_VERIFY_12:
++	case WRITE_VERIFY_16:
++		do_verify = 1;
+ 	case WRITE_6:
+ 	case WRITE_10:
+ 	case WRITE_12:
+@@ -105,7 +110,8 @@ static void bs_rdwr_request(struct scsi_cmd *cmd)
+ 		if ((cmd->scb[0] != WRITE_6) && (cmd->scb[1] & 0x10))
+ 			posix_fadvise(fd, cmd->offset, length,
+ 				      POSIX_FADV_NOREUSE);
+-
++		if (do_verify)
++			goto verify;
+ 		break;
+ 	case READ_6:
+ 	case READ_10:
+@@ -134,6 +140,7 @@ static void bs_rdwr_request(struct scsi_cmd *cmd)
+ 	case VERIFY_10:
+ 	case VERIFY_12:
+ 	case VERIFY_16:
++verify:
+ 		length = scsi_get_out_length(cmd);
+ 
+ 		tmpbuf = malloc(length);
+diff --git a/usr/sbc.c b/usr/sbc.c
+index 24aaddb..4c8685d 100644
+--- a/usr/sbc.c
++++ b/usr/sbc.c
+@@ -164,9 +164,16 @@ static int sbc_rw(int host_no, struct scsi_cmd *cmd)
+ 	case READ_10:
+ 	case READ_12:
+ 	case READ_16:
++	case WRITE_10:
++	case WRITE_12:
++	case WRITE_16:
++	case WRITE_VERIFY:
++	case WRITE_VERIFY_12:
++	case WRITE_VERIFY_16:
++		/* We only support protection information type 0 */
+ 		if (cmd->scb[1] & 0xe0) {
+ 			key = ILLEGAL_REQUEST;
+-			asc = ASC_INVALID_OP_CODE;
++			asc = ASC_INVALID_FIELD_IN_CDB;
+ 			goto sense;
+ 		}
+ 		break;
+@@ -178,6 +185,9 @@ static int sbc_rw(int host_no, struct scsi_cmd *cmd)
+ 		case WRITE_10:
+ 		case WRITE_12:
+ 		case WRITE_16:
++		case WRITE_VERIFY:
++		case WRITE_VERIFY_12:
++		case WRITE_VERIFY_16:
+ 		case PRE_FETCH_10:
+ 		case PRE_FETCH_16:
+ 			key = DATA_PROTECT;
+@@ -525,7 +535,7 @@ static struct device_type_template sbc_template = {
+ 		{spc_illegal_op,},
+ 		{spc_illegal_op,},
+ 		{spc_illegal_op,},
+-		{spc_illegal_op,},
++		{sbc_rw, NULL, PR_EA_FA|PR_EA_FN},
+ 		{sbc_verify, NULL, PR_EA_FA|PR_EA_FN},
+ 
+ 		/* 0x30 */
+@@ -586,7 +596,7 @@ static struct device_type_template sbc_template = {
+ 		{spc_illegal_op,},
+ 		{spc_illegal_op,},
+ 		{spc_illegal_op,},
+-		{spc_illegal_op,},
++		{sbc_rw, NULL, PR_EA_FA|PR_EA_FN},
+ 		{sbc_verify, NULL, PR_EA_FA|PR_EA_FN},
+ 
+ 		/* 0x90 */
+@@ -624,7 +634,7 @@ static struct device_type_template sbc_template = {
+ 		{spc_illegal_op,},
+ 		{spc_illegal_op,},
+ 		{spc_illegal_op,},
+-		{spc_illegal_op,},
++		{sbc_rw, NULL, PR_EA_FA|PR_EA_FN},
+ 		{sbc_verify, NULL, PR_EA_FA|PR_EA_FN},
+ 
+ 		[0xb0 ... 0xff] = {spc_illegal_op},
+diff --git a/usr/scsi.c b/usr/scsi.c
+index 7802ba1..928ceb9 100644
+--- a/usr/scsi.c
++++ b/usr/scsi.c
+@@ -288,9 +288,11 @@ enum data_direction scsi_data_dir_opcode(unsigned char op)
+ 	switch (op) {
+ 	case WRITE_6:
+ 	case WRITE_10:
+-	case WRITE_VERIFY:
+ 	case WRITE_12:
+ 	case WRITE_16:
++	case WRITE_VERIFY:
++	case WRITE_VERIFY_12:
++	case WRITE_VERIFY_16:
+ 		dir = DATA_WRITE;
+ 		break;
+ 	default:

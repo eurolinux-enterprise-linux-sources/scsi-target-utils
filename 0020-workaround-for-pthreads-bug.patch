@@ -1,0 +1,35 @@
+From 8dff2e30238967d309d4d44af1ca64d4057938a1 Mon Sep 17 00:00:00 2001
+From: Andy Grover <agrover@redhat.com>
+Date: Tue, 3 Jun 2014 12:59:21 -0700
+Subject: [PATCH] workaround for pthreads bug
+
+---
+ usr/bs.c        | 1 +
+ usr/bs_thread.h | 2 ++
+ 2 files changed, 3 insertions(+)
+
+diff --git a/usr/bs.c b/usr/bs.c
+index 6ead9f3..6c5e18f 100644
+--- a/usr/bs.c
++++ b/usr/bs.c
+@@ -335,6 +335,7 @@ int bs_thread_open(struct bs_thread_info *info, request_func_t *rfn,
+ 
+ 	pthread_cond_init(&info->pending_cond, NULL);
+ 	pthread_mutex_init(&info->pending_lock, NULL);
++	info->pad = 0;
+ 
+ 	for (i = 0; i < nr_threads; i++) {
+ 		ret = pthread_create(&info->worker_thread[i], NULL,
+diff --git a/usr/bs_thread.h b/usr/bs_thread.h
+index b282b17..e6e0674 100644
+--- a/usr/bs_thread.h
++++ b/usr/bs_thread.h
+@@ -4,6 +4,8 @@ struct bs_thread_info {
+ 	pthread_t *worker_thread;
+ 	int nr_worker_threads;
+ 
++	int pad; // workaround a bug
++
+ 	/* wokers sleep on this and signaled by tgtd */
+ 	pthread_cond_t pending_cond;
+ 	/* locked by tgtd and workers */

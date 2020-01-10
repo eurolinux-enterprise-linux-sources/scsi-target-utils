@@ -1,0 +1,65 @@
+From 0177393be3bb3ef89b5b06e9eb9dfb55fe951976 Mon Sep 17 00:00:00 2001
+From: Ronnie Sahlberg <ronniesahlberg@gmail.com>
+Date: Sun, 4 Mar 2012 09:33:48 +1100
+Subject: [PATCH] DPO: Add emulation of DPO bit for READ/WRITE/VERIFY10/12/16
+
+When the DPO bit is set to 1, this is an indication the initiator will
+not reference the data again. For this case, call posix_fadvise() and
+let the kernel know it may expunge this data from the page cache.
+
+From SBC READ10 :
+
+NOTE 11 - The DPO bit is used to control replacement of logical blocks
+in the cache when the application client has information on the future
+usage of the logical blocks. If the DPO bit is set to one, the
+application client is specifying that the logical blocks accessed by
+the command are not likely to be accessed again in the near future and
+should not be put in the cache nor retained by the cache. If the DPO
+bit is set to zero, the application client is specifying that the
+logical blocks accessed by this command are likely to be accessed
+again in the near future.
+
+Signed-off-by: Ronnie Sahlberg <ronniesahlberg@gmail.com>
+Signed-off-by: FUJITA Tomonori <fujita.tomonori@lab.ntt.co.jp>
+---
+ usr/bs_rdwr.c | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
+
+diff --git a/usr/bs_rdwr.c b/usr/bs_rdwr.c
+index c6f6845..dd7da21 100644
+--- a/usr/bs_rdwr.c
++++ b/usr/bs_rdwr.c
+@@ -102,6 +102,10 @@ static void bs_rdwr_request(struct scsi_cmd *cmd)
+ 		} else
+ 			set_medium_error(&result, &key, &asc);
+ 
++		if ((cmd->scb[0] != WRITE_6) && (cmd->scb[1] & 0x10))
++			posix_fadvise(fd, cmd->offset, length,
++				      POSIX_FADV_NOREUSE);
++
+ 		break;
+ 	case READ_6:
+ 	case READ_10:
+@@ -113,6 +117,11 @@ static void bs_rdwr_request(struct scsi_cmd *cmd)
+ 
+ 		if (ret != length)
+ 			set_medium_error(&result, &key, &asc);
++
++		if ((cmd->scb[0] != READ_6) && (cmd->scb[1] & 0x10))
++			posix_fadvise(fd, cmd->offset, length,
++				      POSIX_FADV_NOREUSE);
++
+ 		break;
+ 	case PRE_FETCH_10:
+ 	case PRE_FETCH_16:
+@@ -145,6 +154,10 @@ static void bs_rdwr_request(struct scsi_cmd *cmd)
+ 			asc = ASC_MISCOMPARE_DURING_VERIFY_OPERATION;
+ 		}
+ 
++		if (cmd->scb[1] & 0x10)
++			posix_fadvise(fd, cmd->offset, length,
++				      POSIX_FADV_NOREUSE);
++
+ 		free(tmpbuf);
+ 		break;
+ 	default:

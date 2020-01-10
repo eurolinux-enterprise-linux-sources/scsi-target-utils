@@ -1,0 +1,36 @@
+From 5d983f5459177756672874bcef38942727d0bc75 Mon Sep 17 00:00:00 2001
+From: Andy Grover <agrover@redhat.com>
+Date: Fri, 25 Jul 2014 10:47:57 -0700
+Subject: [PATCH] fix checks when snprintf output is truncated
+
+---
+ usr/iscsi/iscsid.h | 2 ++
+ usr/iscsi/target.c | 2 ++
+ 2 files changed, 4 insertions(+)
+
+diff --git a/usr/iscsi/iscsid.h b/usr/iscsi/iscsid.h
+index 145d053..a5116eb 100644
+--- a/usr/iscsi/iscsid.h
++++ b/usr/iscsi/iscsid.h
+@@ -360,6 +360,8 @@ extern int isns_target_deregister(char *name);
+ 
+ #define buffer_check(buf, total, len, rest)	\
+ ({						\
++	if (len > rest)				\
++		len = rest;			\
+ 	buf += len;				\
+ 	total += len;				\
+ 	rest -= len;				\
+diff --git a/usr/iscsi/target.c b/usr/iscsi/target.c
+index 9546035..7194482 100644
+--- a/usr/iscsi/target.c
++++ b/usr/iscsi/target.c
+@@ -579,6 +579,8 @@ static int show_iscsi_param(char *buf, struct param *param, int rest)
+ 
+ #define __buffer_check(buf, total, len, rest)	\
+ ({						\
++	if (len > rest)				\
++		len = rest;			\
+ 	buf += len;				\
+ 	total += len;				\
+ 	rest -= len;				\

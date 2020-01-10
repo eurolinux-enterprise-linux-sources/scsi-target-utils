@@ -179,6 +179,3 @@ index 0afd251..f531de4 100644
  		flags = ISNS_FLAG_REPLACE;
  
  		if (scn_listen_port) {
--- 
-1.9.0
-

@@ -39,6 +39,3 @@ index daa115b..537d269 100644
  		ret = TGTADM_INVALID_REQUEST;
  		goto out;
  	}
--- 
-1.9.0
-

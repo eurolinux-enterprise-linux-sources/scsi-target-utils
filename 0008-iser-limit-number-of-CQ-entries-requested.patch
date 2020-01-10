@@ -28,6 +28,3 @@ index 7a43fd4..b3889a7 100644
  	dprintf("max %d CQEs\n", cqe_num);
  
  	err = -1;
--- 
-1.9.0
-

@@ -1,0 +1,121 @@
+From 400be0bb5e2bcd643eb71eb7e29ccbccedc88940 Mon Sep 17 00:00:00 2001
+From: Ronnie Sahlberg <ronniesahlberg@gmail.com>
+Date: Sun, 24 Mar 2013 15:38:26 -0700
+Subject: [PATCH] sbc: Add residual handling for WRITE6/10/12/16 and
+ WRITEVERIFY10/12/16
+
+This patch adds proper residual handling and reporting for the WRITE and
+WRITEVERIFY commands.
+In addition to setting the residual, for the case of underflow we have
+to clamp the DATA-IN buffer so that the bs-backends will not write
+more than what is specified in the SCSI TL.
+
+Tests for these conditions are availabel in the libiscsi testsuite.
+
+Test for WRITE10 follows :
+$ ./bin/iscsi-test-cu -t "TestWrite10.testWrite10Residuals" iscsi://127.0.0.1/iqn.ronnie.test/1 -V --dataloss
+
+     CUnit - A Unit testing framework for C - Version 2.1-0
+     http://cunit.sourceforge.net/
+
+Suite: TestWrite10
+  Test: testWrite10Residuals ...
+    Test WRITE10 commands with residuals
+    Block size is 512
+    Try writing one block but with iSCSI expected transfer length==0
+    Verify that the target returned SUCCESS
+    Verify residual overflow flag is set
+    Verify we got 512 bytes of residual overflow
+    Try writing one block but with iSCSI expected transfer length==10000
+    Verify that the target returned SUCCESS
+    Verify residual underflow flag is set
+    Verify we got 9488 bytes of residual underflow
+    Try writing one block but with iSCSI expected transfer length==200
+    Verify that the target returned SUCCESS
+    Verify residual overflow flag is set
+    Verify we got 312 bytes of residual overflow
+    Try writing two blocks but iSCSI expected transfer length==512 (==one block)
+    Verify that the target returned SUCCESS
+    Verify residual overflow flag is set
+    Verify we got one block of residual overflow
+    Verify that if iSCSI EDTL > SCSI TL then we only write SCSI TL amount of data
+    Write two blocks of 'a'
+    Send WRITE10 LBA:0 blocks:2 wrprotect:0 dpo:0 fua:0 fua_nv:0 group:0
+    [OK] WRITE10 returned SUCCESS.
+    Write one block of 'b' but set iSCSI EDTL to 2 blocks.
+    Verify that the target returned SUCCESS
+    Verify residual underflow flag is set
+    Verify we got one block of residual underflow
+    Read the two blocks
+    Send READ10 LBA:0 blocks:2 rdprotect:0 dpo:0 fua:0 fua_nv:0 group:0
+    [OK] READ10 returned SUCCESS.
+    Verify that the first block was changed to 'b'
+    Verify that the second block was NOT overwritten and still contains 'a'
+    Verify that if iSCSI EDTL < SCSI TL then we only write iSCSI EDTL amount of data
+    Write two blocks of 'a'
+    Send WRITE10 LBA:0 blocks:2 wrprotect:0 dpo:0 fua:0 fua_nv:0 group:0
+    [OK] WRITE10 returned SUCCESS.
+    Write two blocks of 'b' but set iSCSI EDTL to 1 blocks.
+    Verify that the target returned SUCCESS
+    Verify residual overflow flag is set
+    Verify we got one block of residual overflow
+    Read the two blocks
+    Send READ10 LBA:0 blocks:2 rdprotect:0 dpo:0 fua:0 fua_nv:0 group:0
+    [OK] READ10 returned SUCCESS.
+    Verify that the first block was changed to 'b'
+    Verify that the second block was NOT overwritten and still contains 'a'
+passed
+
+--Run Summary: Type      Total     Ran  Passed  Failed
+               suites        1       1     n/a       0
+               tests         1       1       1       0
+               asserts      35      35      35       0
+Tests completed with return value: 0
+
+Signed-off-by: Ronnie Sahlberg <ronniesahlberg@gmail.com>
+Signed-off-by: FUJITA Tomonori <fujita.tomonori@lab.ntt.co.jp>
+---
+ usr/sbc.c | 30 ++++++++++++++++++++++++++++++
+ 1 file changed, 30 insertions(+)
+
+diff --git a/usr/sbc.c b/usr/sbc.c
+index 4c8685d..df67d47 100644
+--- a/usr/sbc.c
++++ b/usr/sbc.c
+@@ -211,6 +211,36 @@ static int sbc_rw(int host_no, struct scsi_cmd *cmd)
+ 	cmd->offset = lba;
+ 	cmd->tl     = tl;
+ 
++	/* Handle residuals */
++	switch (cmd->scb[0]) {
++	case READ_6:
++	case READ_10:
++	case READ_12:
++	case READ_16:
++		if (cmd->tl != scsi_get_in_length(cmd))
++			scsi_set_in_resid_by_actual(cmd, cmd->tl);
++		break;
++	case WRITE_6:
++	case WRITE_10:
++	case WRITE_12:
++	case WRITE_16:
++	case WRITE_VERIFY:
++	case WRITE_VERIFY_12:
++	case WRITE_VERIFY_16:
++		if (cmd->tl != scsi_get_out_length(cmd)) {
++			scsi_set_out_resid_by_actual(cmd, cmd->tl);
++
++			/* We need to clamp the size of the in-buffer
++			 * so that we dont try to write > cmd->tl in the
++			 * backend store.
++			 */
++			if (cmd->tl < scsi_get_out_length(cmd)) {
++				scsi_set_out_length(cmd, cmd->tl);
++			}
++		}
++		break;
++	}
++
+ 	ret = cmd->dev->bst->bs_cmd_submit(cmd);
+ 	if (ret) {
+ 		key = HARDWARE_ERROR;

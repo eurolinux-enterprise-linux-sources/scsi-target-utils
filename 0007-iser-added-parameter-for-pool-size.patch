@@ -71,6 +71,3 @@ index a167c95..7a43fd4 100644
  		} else {
  			dprintf("unsupported param:%s\n", p);
  			err = -EINVAL;
--- 
-1.9.0
-

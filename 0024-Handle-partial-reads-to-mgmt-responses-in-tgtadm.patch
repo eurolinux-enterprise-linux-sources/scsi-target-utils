@@ -1,0 +1,26 @@
+From f0cc9d15c38164747efaf2de270861fe5e6ad418 Mon Sep 17 00:00:00 2001
+From: Andy Grover <agrover@redhat.com>
+Date: Thu, 17 Jul 2014 15:34:25 -0700
+Subject: [PATCH] Handle partial reads to mgmt responses in tgtadm
+
+read() may return less than requested, so we need to subtract what we
+received rather than what we asked for.
+
+Signed-off-by: Andy Grover <agrover@redhat.com>
+---
+ usr/tgtadm.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/usr/tgtadm.c b/usr/tgtadm.c
+index ba23c3a..c40cb69 100644
+--- a/usr/tgtadm.c
++++ b/usr/tgtadm.c
+@@ -279,7 +279,7 @@ retry:
+ 			return errno;
+ 		}
+ 		fputs(buf, stdout);
+-		rest -= len;
++		rest -= err;
+ 	}
+ 
+ 	return 0;

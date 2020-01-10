@@ -184,6 +184,3 @@ index b5dd567..19df3f2 100644
 +extern void param_set_val(struct iscsi_key *, struct param *, int, unsigned int *);
  
  #endif
--- 
-1.9.0
-

@@ -60,6 +60,3 @@ index 4370fb2..5f6e427 100644
  
  manpages/tgt-setup-lun.8: tgt-setup-lun.8.xml
  	-test -z "$(XSLTPROC)" || $(XSLTPROC) -o $@ http://docbook.sourceforge.net/release/xsl/current/manpages/docbook.xsl $<
--- 
-1.9.0
-

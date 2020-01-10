@@ -82,6 +82,3 @@ index 030f1ae..cd34f95 100755
  	}
  	foreach my $k (sort keys %conf) {
  		if ($k eq "iSNS") {
--- 
-1.9.0
-

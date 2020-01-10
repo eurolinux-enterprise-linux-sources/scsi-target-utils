@@ -20,6 +20,3 @@ index 5580420..9595d09 100644
  	memset(rsp_bhs, 0, BHS_SIZE);
  	if ((req_bhs->opcode & ISCSI_OPCODE_MASK) != ISCSI_OP_LOGIN ||
  	    !(req_bhs->opcode & ISCSI_OP_IMMEDIATE)) {
--- 
-1.9.0
-

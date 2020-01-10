@@ -29,6 +29,3 @@ index 7ff7834..1d02db3 100644
  		params = params + 10;
  
  	while ((p = strsep(&params, ",")) != NULL) {
--- 
-1.9.0
-

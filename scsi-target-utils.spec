@@ -1,6 +1,6 @@
 Name:           scsi-target-utils
 Version:        1.0.24
-Release:        12%{?dist}
+Release:        16%{?dist}
 Summary:        The SCSI target daemon and utility programs
 
 Group:          System Environment/Daemons
@@ -29,7 +29,13 @@ Patch14:        0015-iser-cleaning-iser-ib-objects-on-lld-exit.patch
 Patch15:        0016-iser-Don-t-release-IB-resources-if-were-not-allocate.patch
 Patch16:        0017-Fix-possible-segfault-on-logicalunit-update.patch
 Patch17:        0018-Fix-segfault-if-device_type-set-to-pt-but-bstype-not.patch
-Patch18:        0019-Fix-race-on-thread-shutdown-causing-deadlock.patch 
+Patch18:        0019-Fix-race-on-thread-shutdown-causing-deadlock.patch
+Patch19:        0020-workaround-for-pthreads-bug.patch
+Patch20:        0021-DPO-Add-emulation-of-DPO-bit-for-READ-WRITE-VERIFY10.patch
+Patch21:        0022-Add-support-for-WRITEVERIFY10-12-16.patch
+Patch22:        0023-sbc-Add-residual-handling-for-WRITE6-10-12-16-and-WR.patch
+Patch23:        0024-Handle-partial-reads-to-mgmt-responses-in-tgtadm.patch
+Patch24:        0025-fix-checks-when-snprintf-output-is-truncated.patch
 
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
@@ -66,6 +72,12 @@ Currently, software iSCSI targets are supported.
 %patch16 -p1
 %patch17 -p1
 %patch18 -p1
+%patch19 -p1
+%patch20 -p1
+%patch21 -p1
+%patch22 -p1
+%patch23 -p1
+%patch24 -p1
 
 
 %build
@@ -133,9 +145,27 @@ fi
 
 
 %changelog
-* Wed Apr 30  2014 Andy Grover <agrover@redhat.com> - 1.0.24-12
+* Fri Jul 25 2014 Andy Grover <agrover@redhat.com> - 1.0.24-16
+- Add patch 0025-fix-checks-when-snprintf-output-is-truncated.patch
+  to resolve rhbz #1123438
+
+* Thu Jul 17 2014 Andy Grover <agrover@redhat.com> - 1.0.24-15
+- Add patch 0024-Handle-partial-reads-to-mgmt-responses-in-tgtadm.patch
+  to resolve rhbz #865960.
+
+* Thu Jul 10 2014 Andy Grover <agrover@redhat.com> - 1.0.24-14
+- Add patches for write and verify support, rhbz #1094084
+  * 0021-DPO-Add-emulation-of-DPO-bit-for-READ-WRITE-VERIFY10.patch
+  * 0022-Add-support-for-WRITEVERIFY10-12-16.patch
+  * 0023-sbc-Add-residual-handling-for-WRITE6-10-12-16-and-WR.patch
+
+* Fri Jun 20 2014 Andy Grover <agrover@redhat.com> - 1.0.24-13
+- Add patch 0020-workaround-for-pthreads-bug.patch
+  for rhbz #848585.
+
+* Wed Apr 30 2014 Andy Grover <agrover@redhat.com> - 1.0.24-12
 - Add patch 0019-Fix-race-on-thread-shutdown-causing-deadlock.patch
-  fpr rhbz #848585.
+  for rhbz #848585.
 
 * Mon Mar 24 2014 Andy Grover <agrover@redhat.com> - 1.0.24-11
 - Add patch 0018-Fix-segfault-if-device_type-set-to-pt-but-bstype-not.patch
@@ -298,7 +328,7 @@ project moved to sourceforge.
 * Sat Feb  9 2008 Terje Rosten <terje.rosten@ntnu.no> - 0.0-3.20070803snap
 - rebuild
 
-* Sun Dec 07 2007 Alex Lancaster <alexlan[AT]fedoraproject.org> - 0.0-2.20070803snap
+* Sun Dec 9 2007 Alex Lancaster <alexlan[AT]fedoraproject.org> - 0.0-2.20070803snap
 - rebuild for new openssl soname bump
 
 * Wed Sep 26 2007 Terje Rosten <terje.rosten@ntnu.no> - 0.0-1.20070803snap
