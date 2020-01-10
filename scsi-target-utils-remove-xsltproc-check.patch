@@ -1,0 +1,65 @@
+commit ad75a57863efcbf264ef44c5643e64c5bad84cb9
+Author: Andy Grover <agrover@redhat.com>
+Date:   Wed Nov 2 22:15:32 2011 -0700
+
+    remove check for xsltproc
+    
+    It should always be there, since we added libxslt as a BuildRequires.
+    
+    Use local stylesheet.
+    
+    Signed-off-by: Andy Grover <agrover@redhat.com>
+
+diff --git a/doc/Makefile b/doc/Makefile
+index 4370fb2..54d5a09 100644
+--- a/doc/Makefile
++++ b/doc/Makefile
+@@ -32,35 +32,38 @@ clean:
+ 	rm -f $(XMLMAN) $(XMLHTML)
+ 	rmdir manpages htmlpages
+ 
++STYLEMAN = /usr/share/sgml/docbook/xsl-stylesheets-1.75.2/manpages/docbook.xsl
++STYLEHTML = /usr/share/sgml/docbook/xsl-stylesheets-1.75.2/html/docbook.xsl
++
+ manpages/tgtd.8: tgtd.8.xml
+-	-test -z "$(XSLTPROC)" || $(XSLTPROC) -o $@ http://docbook.sourceforge.net/release/xsl/current/manpages/docbook.xsl $<
++	$(XSLTPROC) -o $@ $(STYLEMAN) $<
+ 
+ htmlpages/tgtd.8.html: tgtd.8.xml
+-	-test -z "$(XSLTPROC)" || $(XSLTPROC) -o $@ http://docbook.sourceforge.net/release/xsl/current/html/docbook.xsl $<
++	$(XSLTPROC) -o $@ $(STYLEHTML) $<
+ 
+ manpages/tgtadm.8: tgtadm.8.xml
+-	-test -z "$(XSLTPROC)" || $(XSLTPROC) -o $@ http://docbook.sourceforge.net/release/xsl/current/manpages/docbook.xsl $<
++	$(XSLTPROC) -o $@ $(STYLEMAN) $<
+ 
+ htmlpages/tgtadm.8.html: tgtadm.8.xml
+-	-test -z "$(XSLTPROC)" || $(XSLTPROC) -o $@ http://docbook.sourceforge.net/release/xsl/current/html/docbook.xsl $<
++	$(XSLTPROC) -o $@ $(STYLEHTML) $<
+ 
+ manpages/tgt-admin.8: tgt-admin.8.xml
+-	-test -z "$(XSLTPROC)" || $(XSLTPROC) -o $@ http://docbook.sourceforge.net/release/xsl/current/manpages/docbook.xsl $<
++	$(XSLTPROC) -o $@ $(STYLEMAN) $<
+ 
+ htmlpages/tgt-admin.8.html: tgt-admin.8.xml
+-	-test -z "$(XSLTPROC)" || $(XSLTPROC) -o $@ http://docbook.sourceforge.net/release/xsl/current/html/docbook.xsl $<
++	$(XSLTPROC) -o $@ $(STYLEHTML) $<
+ 
+ manpages/tgtimg.8: tgtimg.8.xml
+-	-test -z "$(XSLTPROC)" || $(XSLTPROC) -o $@ http://docbook.sourceforge.net/release/xsl/current/manpages/docbook.xsl $<
++	$(XSLTPROC) -o $@ $(STYLEMAN) $<
+ 
+ htmlpages/tgtimg.8.html: tgtimg.8.xml
+-	-test -z "$(XSLTPROC)" || $(XSLTPROC) -o $@ http://docbook.sourceforge.net/release/xsl/current/html/docbook.xsl $<
++	$(XSLTPROC) -o $@ $(STYLEHTML) $<
+ 
+ manpages/targets.conf.5: targets.conf.5.xml
+-	-test -z "$(XSLTPROC)" || $(XSLTPROC) -o $@ http://docbook.sourceforge.net/release/xsl/current/manpages/docbook.xsl $<
++	$(XSLTPROC) -o $@ $(STYLEMAN) $<
+ 
+ htmlpages/targets.conf.5.html: targets.conf.5.xml
+-	-test -z "$(XSLTPROC)" || $(XSLTPROC) -o $@ http://docbook.sourceforge.net/release/xsl/current/html/docbook.xsl $<
++	$(XSLTPROC) -o $@ $(STYLEHTML) $<
+ 
+ manpages/tgt-setup-lun.8: tgt-setup-lun.8.xml
+ 	-test -z "$(XSLTPROC)" || $(XSLTPROC) -o $@ http://docbook.sourceforge.net/release/xsl/current/manpages/docbook.xsl $<

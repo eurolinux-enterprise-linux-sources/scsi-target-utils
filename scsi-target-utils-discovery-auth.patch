@@ -1,0 +1,73 @@
+diff --git a/doc/targets.conf.5.xml b/doc/targets.conf.5.xml
+index f8abe20..f754df3 100644
+--- a/doc/targets.conf.5.xml
++++ b/doc/targets.conf.5.xml
+@@ -142,6 +142,24 @@
+         </listitem>
+       </varlistentry>
+ 
++      <varlistentry><term><option>incomingdiscoveryuser &lt;user&gt; &lt;userpassword&gt;</option></term>
++        <listitem>
++          <para>
++	    Define iscsi incoming discovery authentication setting. If no
++	    value is given, no authentication is performed.
++          </para>
++        </listitem>
++      </varlistentry>
++
++      <varlistentry><term><option>outgoingdiscoveryuser &lt;user&gt; &lt;userpassword&gt;</option></term>
++        <listitem>
++          <para>
++	    Define iscsi outgoing discovery authentication setting. If no
++	    value is given, no authentication is performed.
++          </para>
++        </listitem>
++      </varlistentry>
++
+     </variablelist>
+ 
+   </refsect1>
+diff --git a/doc/tgtadm.8.xml b/doc/tgtadm.8.xml
+index ee973ba..668e184 100644
+--- a/doc/tgtadm.8.xml
++++ b/doc/tgtadm.8.xml
+@@ -572,12 +572,9 @@ tgtadm --op update --mode target --tid 1 -n DataDigest -v None
+     <para>
+       CHAP authentication is supported to require authentication before
+       an initiator is allowed to log in and access devices.
+-      TGTD supports setting CHAP for normal log in sessions only, not
+-      for discovery sessions. Discovery sessions are always possible
+-      without authentication.
+     </para>
+     <para>
+-      CHAP authentication is set on the target level.
++      CHAP main-phase authentication is set on the target level.
+       To set up CHAP authentication we first need to create an account
+       and its associated password, then we bind the account to one or more
+       targets.
+diff --git a/scripts/tgt-admin b/scripts/tgt-admin
+index 030f1ae..cd34f95 100755
+--- a/scripts/tgt-admin
++++ b/scripts/tgt-admin
+@@ -210,7 +210,21 @@ sub add_targets {
+ 				check_if_hash_array($conf{$k}, $k);
+ 				execute("tgtadm -C $control_port --op update --mode sys --name $k -v $conf{$k}");
+ 			}
++		} elsif (($k eq "incomingdiscoveryuser") || ($k eq "outgoingdiscoveryuser")) {
++			my @userpass = split(/ /, $conf{$k});
++			check_value($userpass[1]);
++			# Only delete or create account if it doesn't already exist
++			if (! exists $existing_accounts{$userpass[0]} ) {
++				execute("tgtadm -C $control_port --mode account --op new --user=$userpass[0] --password=$userpass[1]");
++				$existing_accounts{$userpass[0]} = 1;
++			}
++			my $extra_str = "";
++			if ($k eq "outgoingdiscoveryuser") {
++				$extra_str = " --outgoing";
++			}
++			execute("tgtadm -C $control_port --mode account --op bind --user=$userpass[0] $extra_str");
+ 		}
++
+ 	}
+ 	foreach my $k (sort keys %conf) {
+ 		if ($k eq "iSNS") {

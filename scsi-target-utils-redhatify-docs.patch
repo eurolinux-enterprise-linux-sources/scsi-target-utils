@@ -1,0 +1,118 @@
+diff -Naurp tgt-1.0.13/doc/README.iscsi tgt-1.0.13.work/doc/README.iscsi
+--- tgt-1.0.13/doc/README.iscsi	2011-01-30 18:34:56.000000000 -0600
++++ tgt-1.0.13.work/doc/README.iscsi	2011-02-02 18:13:33.000000000 -0600
+@@ -1,25 +1,27 @@
+ Preface
+ -------------
+-This show a simple example to set up some targets.
++This shows a simple example to set up some targets.
+ 
++See man tgt-admin and the example /etc/tgt/targets.conf
++file for how to setup a persistent configuration that is
++started when the tgtd service is started (when "service tgtd start"
++is run).
+ 
+ Starting the daemon
+ -------------
+ The iSCSI target driver works with the 2.6.X kernels.
+ 
+-First, you need to compile the source code:
+-
+-host:~/tgt/usr$ make
+-
+ Try the following commands:
+ 
+ host:~/tgt$ su
+-host:~/tgt# ./usr/tgtd
++host:~/tgt# service tgtd start
+ 
+ 
+ Configuration
+ -------------
+-Everyting is configured via the tgtadm management tool.
++When started, the tgtd service will setup targets defined in
++/etc/tgt/targets.conf. To manually configure a target tgtadm
++or tgt-admin can be used.
+ 
+ The following example creates a target with id 1 (the iqn is
+ iqn.2001-04.com.example:storage.disk2.amiens.sys1.xyz) and adds a
+diff -Naurp tgt-1.0.13/doc/README.iser tgt-1.0.13.work/doc/README.iser
+--- tgt-1.0.13/doc/README.iser	2011-01-30 18:34:56.000000000 -0600
++++ tgt-1.0.13.work/doc/README.iser	2011-02-02 18:15:20.000000000 -0600
+@@ -4,6 +4,22 @@ Copyright (C) 2007 Pete Wyckoff <pw@osc.
+ Copyright (C) 2011 Alexander Nezhinsky <alexandern@voltaire.com>
+ 
+ 
++This is an detailed description of the iSER tgtd target. It
++covers issues from the design to how to manually set it up.
++
++NOTE:
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++To run this iSER target you must have installed the libiverbs
++and librdma rpms on your system. They will not get brought in
++automatically when installing this rpm.
++!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
++
++See man tgt-admin and the example /etc/tgt/targets.conf
++file for how to setup a persistent configuration that is
++started when the tgtd service is started (when "service tgtd start"
++is run).
++
++
+ 1.  Background
+ 
+ 1.1.  Standards (iSCSI, iSER)
+@@ -237,31 +253,7 @@ add padding either.
+ 
+ 3.1.  Building tgtd
+ 
+-Compile tgtd with:
+-
+-	make ISCSI_RDMA=1
+-
+-As iSCSI support is compiled in by default, there is no need to specify
+-additional symbols for it.
+-
+-You'll need to have two libraries installed on your system:
+-libibverbs.so and librdmacm.so.
+-
+-If they are installed in the normal system paths (/usr/include and
+-/usr/lib or /usr/lib64), they will be found automatically. Otherwise,
+-edit CFLAGS and LIBS in usr/Makefile under ISER to specify the paths
+-by hand, e.g., for a /usr/local install, it should look like:
+-
+-	ifneq ($(ISCSI_RDMA),)
+-	CFLAGS += -DISCSI_RDMA -I/usr/local/include
+-	TGTD_OBJS += iscsi/iser.o
+-	LIBS += -L/usr/local/lib -libverbs -lrdmacm
+-	endif
+-
+-If these libraries are not in the normal system paths, you may
+-possibly also have to set, e.g., LD_LIBRARY_PATH=/usr/local/lib in
+-your environment to find the shared libraries at runtime.
+-
++This version of tgtd is built with iser support.
+ 
+ 3.2.  Running tgtd
+ 
+diff -Naurp tgt-1.0.13/README tgt-1.0.13.work/README
+--- tgt-1.0.13/README	2011-01-30 18:34:56.000000000 -0600
++++ tgt-1.0.13.work/README	2011-02-02 18:11:23.000000000 -0600
+@@ -9,17 +9,6 @@ Currently, tgt supports the following ta
+ 
+ - iSER software target driver for Infiniband and RDMA NICs
+ 
+-- IBM System p VIO server
+-
+-- FCoE software target driver for Ethernet NICs (in progress)
+-
+-- Qlogic qla2xxx FC target driver (in progress)
+-
+-Tgt consists of kernel modules, user-space daemon, and user-space
+-tools. iSCSI, iSER, and FCoE target drivers use only user-space daemon
+-and tools (i.e. they are just user-space applications. They don't need
+-any kernel support).
+-
+ tgt can emulate the following device types:
+ 
+ - SBC: a virtual disk drive that can use a file to store the content.
