@@ -1,11 +1,11 @@
 From 4ac5726747a3f272403b674ab9d2a3f4f01be3fa Mon Sep 17 00:00:00 2001
 From: Andy Grover <agrover@redhat.com>
 Date: Sat, 10 Aug 2013 15:40:57 -0700
-Subject: [PATCH 04/17] iser-Fix-bidirectional-chap
+Subject: [PATCH] iser-Fix-bidirectional-chap
 
 ---
- usr/iscsi/iser_text.c |    2 ++
- 1 files changed, 2 insertions(+), 0 deletions(-)
+ usr/iscsi/iser_text.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
 diff --git a/usr/iscsi/iser_text.c b/usr/iscsi/iser_text.c
 index 5580420..9595d09 100644
@@ -21,5 +21,5 @@ index 5580420..9595d09 100644
  	if ((req_bhs->opcode & ISCSI_OPCODE_MASK) != ISCSI_OP_LOGIN ||
  	    !(req_bhs->opcode & ISCSI_OP_IMMEDIATE)) {
 -- 
-1.7.1
+1.9.0
 

@@ -1,11 +1,11 @@
 From 0eddb197e677c505c3a426d4f984b4501b964308 Mon Sep 17 00:00:00 2001
 From: Andy Grover <agrover@redhat.com>
 Date: Sat, 10 Aug 2013 15:41:14 -0700
-Subject: [PATCH 06/17] iser-added-huge-pages-support
+Subject: [PATCH] iser-added-huge-pages-support
 
 ---
- usr/iscsi/iser.c |   59 +++++++++++++++++++++++++++++++++++++++++++++++++++--
- usr/iscsi/iser.h |    3 ++
+ usr/iscsi/iser.c | 59 +++++++++++++++++++++++++++++++++++++++++++++++++++++---
+ usr/iscsi/iser.h |  3 +++
  2 files changed, 59 insertions(+), 3 deletions(-)
 
 diff --git a/usr/iscsi/iser.c b/usr/iscsi/iser.c
@@ -129,5 +129,5 @@ index d06fc6e..0749f50 100644
  
  	/* free and allocated membuf entries */
 -- 
-1.7.1
+1.9.0
 

@@ -1,7 +1,7 @@
 From c501c3914a573c99b77e3727d3a2884d7c4f5ffc Mon Sep 17 00:00:00 2001
 From: Andy Grover <agrover@redhat.com>
 Date: Tue, 27 Aug 2013 15:01:25 -0700
-Subject: [PATCH 13/17] Fix isns to handle multiple portals
+Subject: [PATCH] Fix isns to handle multiple portals
 
 See https://bugzilla.redhat.com/show_bug.cgi?id=865739
 
@@ -12,9 +12,9 @@ addresses, only report one.
 
 Signed-off-by: Andy Grover <agrover@redhat.com>
 ---
- usr/iscsi/iscsi_tcp.c |    1 +
- usr/iscsi/iscsid.h    |    1 +
- usr/iscsi/isns.c      |   85 ++++++++++++++++++++++++++++++------------------
+ usr/iscsi/iscsi_tcp.c |  1 +
+ usr/iscsi/iscsid.h    |  1 +
+ usr/iscsi/isns.c      | 85 ++++++++++++++++++++++++++++++++-------------------
  3 files changed, 55 insertions(+), 32 deletions(-)
 
 diff --git a/usr/iscsi/iscsi_tcp.c b/usr/iscsi/iscsi_tcp.c
@@ -180,5 +180,5 @@ index 0afd251..f531de4 100644
  
  		if (scn_listen_port) {
 -- 
-1.7.1
+1.9.0
 

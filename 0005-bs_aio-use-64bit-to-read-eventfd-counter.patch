@@ -1,11 +1,11 @@
 From c67726f0a64f10a80c3a4730c8aa04579de661ac Mon Sep 17 00:00:00 2001
 From: Andy Grover <agrover@redhat.com>
 Date: Sat, 10 Aug 2013 15:41:03 -0700
-Subject: [PATCH 05/17] bs_aio-use-64bit-to-read-eventfd-counter
+Subject: [PATCH] bs_aio-use-64bit-to-read-eventfd-counter
 
 ---
- usr/bs_aio.c |   12 ++++++++----
- 1 files changed, 8 insertions(+), 4 deletions(-)
+ usr/bs_aio.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
 diff --git a/usr/bs_aio.c b/usr/bs_aio.c
 index 8d07df1..a114a70 100644
@@ -49,5 +49,5 @@ index 8d07df1..a114a70 100644
  
  		for (i = 0; i < nevents; i++)
 -- 
-1.7.1
+1.9.0
 

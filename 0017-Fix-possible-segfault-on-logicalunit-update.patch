@@ -1,7 +1,7 @@
 From fe29c871a32a3a865e8d8fd4f8466a63c24caf88 Mon Sep 17 00:00:00 2001
 From: Roi Dayan <roid@mellanox.com>
 Date: Wed, 28 Aug 2013 19:18:13 +0300
-Subject: [PATCH 17/17] Fix possible segfault on logicalunit update
+Subject: [PATCH] Fix possible segfault on logicalunit update
 
 When updating logicalunit with tgtdadm without any params
 tgtd will segfault when calling strncmp on NULL.
@@ -13,8 +13,8 @@ tgtadm -m logicalunit -o update --tid 1 --lun 1
 Signed-off-by: Roi Dayan <roid@mellanox.com>
 Signed-off-by: FUJITA Tomonori <fujita.tomonori@lab.ntt.co.jp>
 ---
- usr/spc.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+ usr/spc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/usr/spc.c b/usr/spc.c
 index 7ff7834..1d02db3 100644
@@ -30,5 +30,5 @@ index 7ff7834..1d02db3 100644
  
  	while ((p = strsep(&params, ",")) != NULL) {
 -- 
-1.7.1
+1.9.0
 

@@ -1,12 +1,12 @@
 From a10a76a5bfb4bd0364c04355f34e28318f92c8b6 Mon Sep 17 00:00:00 2001
 From: Andy Grover <agrover@redhat.com>
 Date: Sat, 10 Aug 2013 15:41:39 -0700
-Subject: [PATCH 09/17] iser-add-CQ-vector-param
+Subject: [PATCH] iser-add-CQ-vector-param
 
 ---
- usr/iscsi/iser.c |   24 +++++++++++++++++++++++-
- usr/iscsi/iser.h |    2 ++
- 2 files changed, 25 insertions(+), 1 deletions(-)
+ usr/iscsi/iser.c | 24 +++++++++++++++++++++++-
+ usr/iscsi/iser.h |  2 ++
+ 2 files changed, 25 insertions(+), 1 deletion(-)
 
 diff --git a/usr/iscsi/iser.c b/usr/iscsi/iser.c
 index b3889a7..a03bb7a 100644
@@ -79,5 +79,5 @@ index 0749f50..4e4c8f2 100644
   * The IB-extended version from the kernel.  Stags and VAs are in
   * big-endian format.
 -- 
-1.7.1
+1.9.0
 

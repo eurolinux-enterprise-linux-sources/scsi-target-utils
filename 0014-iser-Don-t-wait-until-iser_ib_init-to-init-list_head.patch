@@ -1,7 +1,7 @@
 From a036d172e04e78b85bfd7076f8815107746fea87 Mon Sep 17 00:00:00 2001
 From: Andy Grover <agrover@redhat.com>
 Date: Mon, 19 Aug 2013 17:33:20 -0700
-Subject: [PATCH 14/17] iser: Don't wait until iser_ib_init to init list_heads
+Subject: [PATCH] iser: Don't wait until iser_ib_init to init list_heads
 
 iser_ib_init exits before initializing list heads if no IB present. This
 will cause assert to fire.
@@ -11,8 +11,8 @@ see https://bugzilla.redhat.com/show_bug.cgi?id=995750
 Signed-off-by: Andy Grover <agrover@redhat.com>
 Signed-off-by: FUJITA Tomonori <fujita.tomonori@lab.ntt.co.jp>
 ---
- usr/iscsi/iser.c |   10 +++-------
- 1 files changed, 3 insertions(+), 7 deletions(-)
+ usr/iscsi/iser.c | 10 +++-------
+ 1 file changed, 3 insertions(+), 7 deletions(-)
 
 diff --git a/usr/iscsi/iser.c b/usr/iscsi/iser.c
 index a03bb7a..42802be 100644
@@ -47,5 +47,5 @@ index a03bb7a..42802be 100644
  }
  
 -- 
-1.7.1
+1.9.0
 

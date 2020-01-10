@@ -1,11 +1,11 @@
 From 61df1c48f5905bc66345d8ed3205daca2caa70fd Mon Sep 17 00:00:00 2001
 From: Andy Grover <agrover@redhat.com>
 Date: Sat, 10 Aug 2013 15:41:22 -0700
-Subject: [PATCH 07/17] iser-added-parameter-for-pool-size
+Subject: [PATCH] iser-added-parameter-for-pool-size
 
 ---
- usr/iscsi/iser.c |   24 ++++++++++++++++--------
- 1 files changed, 16 insertions(+), 8 deletions(-)
+ usr/iscsi/iser.c | 24 ++++++++++++++++--------
+ 1 file changed, 16 insertions(+), 8 deletions(-)
 
 diff --git a/usr/iscsi/iser.c b/usr/iscsi/iser.c
 index a167c95..7a43fd4 100644
@@ -72,5 +72,5 @@ index a167c95..7a43fd4 100644
  			dprintf("unsupported param:%s\n", p);
  			err = -EINVAL;
 -- 
-1.7.1
+1.9.0
 

@@ -1,13 +1,13 @@
 From aa906a625d587c8d3d6d732a6c4f9367c14ac30f Mon Sep 17 00:00:00 2001
 From: Andy Grover <agrover@redhat.com>
 Date: Sat, 10 Aug 2013 15:41:47 -0700
-Subject: [PATCH 10/17] Rework-param_set_val-and-friends
+Subject: [PATCH] Rework-param_set_val-and-friends
 
 ---
- usr/iscsi/iscsid.c    |    6 +++---
- usr/iscsi/iser_text.c |    3 +--
- usr/iscsi/param.c     |   36 ++++++++++--------------------------
- usr/iscsi/param.h     |    4 ++--
+ usr/iscsi/iscsid.c    |  6 +++---
+ usr/iscsi/iser_text.c |  3 +--
+ usr/iscsi/param.c     | 36 ++++++++++--------------------------
+ usr/iscsi/param.h     |  4 ++--
  4 files changed, 16 insertions(+), 33 deletions(-)
 
 diff --git a/usr/iscsi/iscsid.c b/usr/iscsi/iscsid.c
@@ -185,5 +185,5 @@ index b5dd567..19df3f2 100644
  
  #endif
 -- 
-1.7.1
+1.9.0
 

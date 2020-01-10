@@ -1,7 +1,7 @@
 From 4e0e8ca926c2f0739f67db7ed17cfea604814196 Mon Sep 17 00:00:00 2001
 From: Andy Grover <agrover@redhat.com>
 Date: Mon, 19 Aug 2013 12:43:07 -0700
-Subject: [PATCH 12/17] Fix leak of task->data
+Subject: [PATCH] Fix leak of task->data
 
 See https://bugzilla.redhat.com/show_bug.cgi?id=813636
 
@@ -20,8 +20,8 @@ those places should refer to the in/out buffers instead?
 Reported-by: Tomoaki Nishimura <t-nishimura@hf.jp.nec.com>
 Signed-off-by: Andy Grover <agrover@redhat.com>
 ---
- usr/iscsi/iscsid.c |    4 ++++
- 1 files changed, 4 insertions(+), 0 deletions(-)
+ usr/iscsi/iscsid.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
 diff --git a/usr/iscsi/iscsid.c b/usr/iscsi/iscsid.c
 index 144d2bd..45551df 100644
@@ -39,5 +39,5 @@ index 144d2bd..45551df 100644
  	conn_put(conn);
  }
 -- 
-1.7.1
+1.9.0
 

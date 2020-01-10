@@ -1,12 +1,12 @@
 From 2c2ea503f16c62ca96088c79854f01c1c1d7e015 Mon Sep 17 00:00:00 2001
 From: Andy Grover <agrover@redhat.com>
 Date: Sat, 10 Aug 2013 15:39:53 -0700
-Subject: [PATCH 01/17] redhatify-docs
+Subject: [PATCH] redhatify-docs
 
 ---
- README           |   11 -----------
- doc/README.iscsi |   16 +++++++++-------
- doc/README.iser  |   42 +++++++++++++++++-------------------------
+ README           | 11 -----------
+ doc/README.iscsi | 16 +++++++++-------
+ doc/README.iser  | 42 +++++++++++++++++-------------------------
  3 files changed, 26 insertions(+), 43 deletions(-)
 
 diff --git a/README b/README
@@ -131,5 +131,5 @@ index 697b507..482e44a 100644
  3.2.  Running tgtd
  
 -- 
-1.7.1
+1.9.0
 

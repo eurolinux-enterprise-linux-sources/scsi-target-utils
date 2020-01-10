@@ -1,0 +1,44 @@
+From cd05c4e89a873e59f6db7195a134e49ed14f074a Mon Sep 17 00:00:00 2001
+From: Andy Grover <agrover@redhat.com>
+Date: Mon, 24 Mar 2014 15:36:49 -0700
+Subject: [PATCH] Fix segfault if device_type set to pt but bstype not sg or
+ bsg
+
+If bstype not set to sg or bsg, it will default to rdwr, and we will
+call target_cmd_perform instead of target_cmd_perform_passthrough when
+accessing the device, which crashes tgtd. There's an existing check for
+setting bstype without setting dev_type, but also add a check the other
+way, setting dev_type without setting bstype to a valid value for pt.
+
+Add an error message to the existing check, as well.
+
+Signed-off-by: Andy Grover <agrover@redhat.com>
+Signed-off-by: FUJITA Tomonori <fujita.tomonori@lab.ntt.co.jp>
+---
+ usr/target.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
+
+diff --git a/usr/target.c b/usr/target.c
+index daa115b..537d269 100644
+--- a/usr/target.c
++++ b/usr/target.c
+@@ -529,6 +529,16 @@ int tgt_device_create(int tid, int dev_type, uint64_t lun, char *params,
+ 	if ((!strncmp(bst->bs_name, "bsg", 3) ||
+ 	     !strncmp(bst->bs_name, "sg", 2)) &&
+ 	    dev_type != TYPE_PT) {
++		eprintf("Must set device type to pt for bsg/sg bstype\n");
++		ret = TGTADM_INVALID_REQUEST;
++		goto out;
++	}
++
++	if (!(!strncmp(bst->bs_name, "bsg", 3) ||
++	     !strncmp(bst->bs_name, "sg", 2)) &&
++	    dev_type == TYPE_PT) {
++		eprintf("Must set bstype to bsg or sg for devicetype pt, not %s\n",
++			bst->bs_name);
+ 		ret = TGTADM_INVALID_REQUEST;
+ 		goto out;
+ 	}
+-- 
+1.9.0
+

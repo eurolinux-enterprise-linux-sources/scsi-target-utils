@@ -1,12 +1,12 @@
 From f2784d169c5136742cafaed669c238b320e3f47b Mon Sep 17 00:00:00 2001
 From: Andy Grover <agrover@redhat.com>
 Date: Sat, 10 Aug 2013 15:41:56 -0700
-Subject: [PATCH 11/17] return-Reject-in-iscsi-login-text-failure
+Subject: [PATCH] return-Reject-in-iscsi-login-text-failure
 
 ---
- usr/iscsi/iscsid.c    |    5 +++++
- usr/iscsi/iser_text.c |    5 +++++
- 2 files changed, 10 insertions(+), 0 deletions(-)
+ usr/iscsi/iscsid.c    | 5 +++++
+ usr/iscsi/iser_text.c | 5 +++++
+ 2 files changed, 10 insertions(+)
 
 diff --git a/usr/iscsi/iscsid.c b/usr/iscsi/iscsid.c
 index 4ed3711..144d2bd 100644
@@ -48,5 +48,5 @@ index 6a1e498..12ebc42 100644
  
  			switch (iscsi_conn->session_param[idx].state) {
 -- 
-1.7.1
+1.9.0
 

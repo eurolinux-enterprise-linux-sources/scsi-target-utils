@@ -1,6 +1,6 @@
 Name:           scsi-target-utils
 Version:        1.0.24
-Release:        10%{?dist}
+Release:        12%{?dist}
 Summary:        The SCSI target daemon and utility programs
 
 Group:          System Environment/Daemons
@@ -28,6 +28,8 @@ Patch13:        0014-iser-Don-t-wait-until-iser_ib_init-to-init-list_head.patch
 Patch14:        0015-iser-cleaning-iser-ib-objects-on-lld-exit.patch
 Patch15:        0016-iser-Don-t-release-IB-resources-if-were-not-allocate.patch
 Patch16:        0017-Fix-possible-segfault-on-logicalunit-update.patch
+Patch17:        0018-Fix-segfault-if-device_type-set-to-pt-but-bstype-not.patch
+Patch18:        0019-Fix-race-on-thread-shutdown-causing-deadlock.patch 
 
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
@@ -62,6 +64,8 @@ Currently, software iSCSI targets are supported.
 %patch14 -p1
 %patch15 -p1
 %patch16 -p1
+%patch17 -p1
+%patch18 -p1
 
 
 %build
@@ -129,6 +133,14 @@ fi
 
 
 %changelog
+* Wed Apr 30  2014 Andy Grover <agrover@redhat.com> - 1.0.24-12
+- Add patch 0019-Fix-race-on-thread-shutdown-causing-deadlock.patch
+  fpr rhbz #848585.
+
+* Mon Mar 24 2014 Andy Grover <agrover@redhat.com> - 1.0.24-11
+- Add patch 0018-Fix-segfault-if-device_type-set-to-pt-but-bstype-not.patch
+  for rhbz #854123.
+
 * Tue Sep 3 2013 Andy Grover <agrover@redhat.com> - 1.0.24-10
 - Update sysconfig.tgtd with commented-out TGTD_OPTIONS
 
