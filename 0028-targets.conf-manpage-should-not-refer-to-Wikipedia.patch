@@ -1,0 +1,33 @@
+From 008821da3ab820d6642976bc62535c8489da6ee9 Mon Sep 17 00:00:00 2001
+From: Andy Grover <agrover@redhat.com>
+Date: Tue, 19 Jan 2016 09:26:47 -0800
+Subject: [PATCH] targets.conf manpage should not refer to Wikipedia
+
+Man pages should not assume the user has network access to reach
+Wikipedia for more information -- if the information is important they
+should just include it directly. In this instance, I don't think
+this info is important enough, and we should just remove the
+reference.
+
+See https://bugzilla.redhat.com/show_bug.cgi?id=1038326 for the
+original bug report.
+
+Signed-off-by: Andy Grover <agrover@redhat.com>
+---
+ doc/targets.conf.5.xml | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/doc/targets.conf.5.xml b/doc/targets.conf.5.xml
+index f754df3..9790d87 100644
+--- a/doc/targets.conf.5.xml
++++ b/doc/targets.conf.5.xml
+@@ -50,8 +50,7 @@
+         <listitem>
+           <para>
+ 	    Defines a the start of a target definition. IQN is an ISCSI Qualified
+-	    Name such as "iqn.2001-04.com.example:storage1". See "ISCSI" on
+-	    Wikipedia for more information on IQNs.
++	    Name such as "iqn.2001-04.com.example:storage1".
+           </para>
+ 	  <para>
+ 	    Within this block should be target-level directives, as

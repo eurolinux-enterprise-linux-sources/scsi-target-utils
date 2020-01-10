@@ -1,0 +1,59 @@
+From 6fa8a62753941cf573a15c78e607db0d16b29cfe Mon Sep 17 00:00:00 2001
+From: Andy Grover <agrover@redhat.com>
+Date: Mon, 2 Nov 2015 09:17:15 -0800
+Subject: [PATCH] Set ExpCmdSn and MaxCmdSn in ISCSI_OP_R2T
+
+tgtd does not send ExpCmdSn and MaxCmdSn with OP_R2T (Ready To
+Transfer) operations.  Is this behaviour correct?
+
+I found the following in 3.5.1.6. Ready To Transfer (R2T),
+RFC 3720.
+
+----
+R2T also carries information required for proper operation
+of the iSCSI protocol, such as:
+
+     - R2TSN (to enable an initiator to detect a missing R2T)
+     - StatSN
+     - ExpCmdSN
+     - MaxCmdSN
+----
+
+Thus I think it is a bug in tgtd not in the Linux initiator.
+
+> At least Linux (RHEL6.2) initiators take 0 MaxCmdSn value
+> and get confused.
+
+Linux initiator ensures on updating CmdSn's that the new
+value is greater (in terms of RFC1982) than the previous.
+When the previous value is less than 0x80000000 the new
+value 0 is less than the previous and is simply ignored.
+Once the session's MaxCmdSn counts up to 0x80000000, it is
+updated to 0 (greater than the previous) when tgtd sends an
+R2T.  The next CmdSn should be around 0x7fffff80, which is
+greater than the MaxCmdSn value (0), and flow control works
+to prevent sending the next command.
+
+If there's no R2T in the small window where MaxCmdSn >= 0x80000000
+and CmdSn < 0x80000000 probably nothing happens except
+that MaxCmdSn flow control would not work (no limit) until
+the actual MaxCmdSn wraps to 0.
+
+Signed-off-by: FUJITA Tomonori <fujita.tomonori@lab.ntt.co.jp>
+---
+ usr/iscsi/iscsid.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/usr/iscsi/iscsid.c b/usr/iscsi/iscsid.c
+index e27966d..895859e 100644
+--- a/usr/iscsi/iscsid.c
++++ b/usr/iscsi/iscsid.c
+@@ -1146,6 +1146,8 @@ static int iscsi_r2t_build(struct iscsi_task *task)
+ 	rsp->data_offset = cpu_to_be32(task->offset);
+ 	/* return next statsn for this conn w/o advancing it */
+ 	rsp->statsn = cpu_to_be32(conn->stat_sn);
++	rsp->exp_cmdsn = cpu_to_be32(conn->session->exp_cmd_sn);
++	rsp->max_cmdsn = cpu_to_be32(conn->session->exp_cmd_sn + MAX_QUEUE_CMD);
+ 	rsp->ttt = (unsigned long) task;
+ 	length = min_t(uint32_t, task->r2t_count,
+ 		       conn->session_param[ISCSI_PARAM_MAX_BURST].val);

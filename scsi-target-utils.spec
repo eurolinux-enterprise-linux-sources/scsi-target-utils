@@ -1,6 +1,6 @@
 Name:           scsi-target-utils
 Version:        1.0.24
-Release:        16%{?dist}
+Release:        18%{?dist}
 Summary:        The SCSI target daemon and utility programs
 
 Group:          System Environment/Daemons
@@ -36,6 +36,9 @@ Patch21:        0022-Add-support-for-WRITEVERIFY10-12-16.patch
 Patch22:        0023-sbc-Add-residual-handling-for-WRITE6-10-12-16-and-WR.patch
 Patch23:        0024-Handle-partial-reads-to-mgmt-responses-in-tgtadm.patch
 Patch24:        0025-fix-checks-when-snprintf-output-is-truncated.patch
+Patch25:        0026-iscsi-fix-leak-of-task-for-delayed-management-reques.patch
+Patch26:        0027-Set-ExpCmdSn-and-MaxCmdSn-in-ISCSI_OP_R2T.patch
+Patch27:        0028-targets.conf-manpage-should-not-refer-to-Wikipedia.patch
 
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
@@ -78,6 +81,9 @@ Currently, software iSCSI targets are supported.
 %patch22 -p1
 %patch23 -p1
 %patch24 -p1
+%patch25 -p1
+%patch26 -p1
+%patch27 -p1
 
 
 %build
@@ -145,6 +151,17 @@ fi
 
 
 %changelog
+
+
+* Tue Jan 19 2016 Andy Grover <agrover@redhat.com> - 1.0.24-18
+- Add patch to fix #1038326
+  * 0028-targets.conf-manpage-should-not-refer-to-Wikipedia.patch
+
+* Mon Nov 2 2015 Andy Grover <agrover@redhat.com> - 1.0.24-17
+- Add patches to fix #1186090, #852532, #1136405.
+  * 0026-iscsi-fix-leak-of-task-for-delayed-management-reques.patch
+  * 0027-Set-ExpCmdSn-and-MaxCmdSn-in-ISCSI_OP_R2T.patch
+
 * Fri Jul 25 2014 Andy Grover <agrover@redhat.com> - 1.0.24-16
 - Add patch 0025-fix-checks-when-snprintf-output-is-truncated.patch
   to resolve rhbz #1123438
